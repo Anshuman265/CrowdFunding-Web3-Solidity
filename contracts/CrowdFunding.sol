@@ -29,8 +29,33 @@ contract MyContract {
         
         // checks for pre-requisites
         require(campaign.deadline < block.timestamp, "The deadline should be a date in future.");
+        campaign.owner = _owner;
+        campaign.title = _title;
+        campaign.description = _description;
+        campaign.target = _target;
+        campaign.deadline = _deadline;
+        campaign.amountCollected = 0;
+        campaign.image = _image;
+
+        numberofCampaigns++;
+
+        return numberofCampaigns - 1;
     }
-    function donateToCampaign(){}
-    function getDonators(){}
+    function donateToCampaign(uint256 _id) public payable{
+        // This is what we get from the frontend
+        uint256 amount = msg.value;
+
+        Campaign storage campaign = campaigns[_id];
+        // pushes the address of the donators
+        campaign.donators.push(msg.sender);
+        campaign.donations.push(amount);
+        
+        (bool sent,) = payable(campaign.owner).call{value: amount}("");
+    
+        if(sent){
+            campaign.amountCollected = campaign.amountCollected + amount;
+        }
+    }
+    function getDonators(uint256 _id) view public returns(address[] memory,uint256[] memory){}
     function getCampaigns(){}
 }
